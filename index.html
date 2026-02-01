@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Experiment 2</title>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding-top: 80px;
+      background: linear-gradient(135deg, #eef2ff, #fdf2f8);
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 70px;
+      background: linear-gradient(#6366f1);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      z-index: 999;
+    }
+
+    header span {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    header nav a {
+      margin-left: 30px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    header nav a:hover {
+      opacity: 0.85;
+    }
+
+    .page {
+      display: none;
+      padding: 50px;
+    }
+
+    .show {
+      display: block;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .glass {
+      width: 480px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      border-radius: 12px;
+      border: none;
+      padding: 15px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .counter {
+      text-align: right;
+      margin: 10px 0;
+    }
+
+    .danger {
+      color: #dc2626;
+      font-weight: bold;
+    }
+
+    .bar {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #3b82f6);
+    }
+
+    .wrapper {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    select {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+    }
+
+    .grid {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 25px;
+    }
+
+    .item {
+      padding: 25px;
+      border-radius: 16px;
+      background: white;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    svg {
+      display: block;
+      margin: auto;
+      background: #fff;
+      border-radius: 16px;
+      border: 2px solid #a5b4fc;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <span>Experiment 2</span>
+  <nav>
+    <a onclick="openPage('one')">Experiment 2.1</a>
+    <a onclick="openPage('two')">Experiment 2.2</a>
+    <a onclick="openPage('three')">Experiment 2.3</a>
+  </nav>
+</header>
+
+<section id="one" class="page show">
+  <div id="app"></div>
+</section>
+
+<section id="two" class="page">
+  <div class="wrapper">
+    <h2>Category Based Product View</h2>
+    <select id="category">
+      <option value="all">Show All</option>
+      <option value="electronics">Electronics</option>
+      <option value="clothing">Clothing</option>
+    </select>
+
+    <div class="grid">
+      <div class="item" data-type="electronics">Bluetooth Headset</div>
+      <div class="item" data-type="clothing">Casual Shirt</div>
+      <div class="item" data-type="electronics">Smart Speaker</div>
+      <div class="item" data-type="clothing">Denim Pants</div>
+    </div>
+  </div>
+</section>
+
+<section id="three" class="page">
+  <h2>SVG Shape Drawer</h2>
+  <p style="text-align:center">Drag mouse to create rectangles</p>
+  <svg id="board" width="820" height="420"></svg>
+</section>
+
+<script>
+  function openPage(id) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("show"));
+    document.getElementById(id).classList.add("show");
+  }
+</script>
+
+<script type="text/babel">
+  function TextCounter() {
+    const [value, setValue] = React.useState("");
+    const max = 150;
+
+    const count = value.trim().split(/\s+/).filter(Boolean).length;
+    const percent = (count / max) * 100;
+
+    return (
+      <div className="glass">
+        <h2>Live Word Tracker</h2>
+        <textarea
+          placeholder="Start typing here..."
+          value={value}
+          onChange={e => setValue(e.target.value)}
+        />
+        <div className={count >= max ? "counter danger" : "counter"}>
+          {count} / {max} words
+        </div>
+        <div className="bar">
+          <span style={{ width: `${Math.min(percent, 100)}%` }}></span>
+        </div>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("app")).render(<TextCounter />);
+</script>
+
+<script>
+  const select = document.getElementById("category");
+  const cards = document.querySelectorAll(".item");
+
+  select.addEventListener("change", () => {
+    cards.forEach(card => {
+      card.style.display =
+        select.value === "all" || card.dataset.type === select.value
+          ? "block"
+          : "none";
+    });
+  });
+</script>
+
+<script>
+  const svg = document.getElementById("board");
+  let draw = false, x0, y0, shape;
+
+  svg.addEventListener("mousedown", e => {
+    draw = true;
+    x0 = e.offsetX;
+    y0 = e.offsetY;
+    shape = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    shape.setAttribute("x", x0);
+    shape.setAttribute("y", y0);
+    shape.setAttribute("fill", "rgba(236,72,153,0.3)");
+    shape.setAttribute("stroke", "#db2777");
+    svg.appendChild(shape);
+  });
+
+  svg.addEventListener("mousemove", e => {
+    if (!draw) return;
+    shape.setAttribute("width", Math.abs(e.offsetX - x0));
+    shape.setAttribute("height", Math.abs(e.offsetY - y0));
+    shape.setAttribute("x", Math.min(e.offsetX, x0));
+    shape.setAttribute("y", Math.min(e.offsetY, y0));
+  });
+
+  svg.addEventListener("mouseup", () => draw = false);
+</script>
+
+</body>
+</html>
